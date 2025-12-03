@@ -1,0 +1,62 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="splashBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+    <linearGradient id="iconBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f0f0f0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="20" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="url(#splashBg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="1100" cy="400" r="300" fill="white" fill-opacity="0.08"/>
+  <circle cx="200" cy="2400" r="200" fill="white" fill-opacity="0.06"/>
+  <circle cx="1000" cy="2000" r="150" fill="white" fill-opacity="0.05"/>
+
+  <!-- Floating particles -->
+  <circle cx="200" cy="600" r="15" fill="white" fill-opacity="0.3"/>
+  <circle cx="1050" cy="1200" r="12" fill="white" fill-opacity="0.3"/>
+  <circle cx="250" cy="1800" r="18" fill="white" fill-opacity="0.3"/>
+  <circle cx="1000" cy="800" r="10" fill="white" fill-opacity="0.3"/>
+  <circle cx="150" cy="1400" r="14" fill="white" fill-opacity="0.3"/>
+
+  <!-- Icon container with glow -->
+  <g filter="url(#glow)">
+    <circle cx="642" cy="1200" r="120" fill="white" fill-opacity="0.25"/>
+  </g>
+
+  <!-- Calendar icon -->
+  <g transform="translate(542, 1100)">
+    <rect x="0" y="30" width="200" height="170" rx="20" fill="white"/>
+    <rect x="0" y="30" width="200" height="50" rx="20" fill="white" fill-opacity="0.9"/>
+    <rect x="0" y="60" width="200" height="20" fill="white"/>
+
+    <!-- Calendar top accent -->
+    <rect x="0" y="30" width="200" height="50" rx="20" fill="#667eea"/>
+    <rect x="0" y="60" width="200" height="20" fill="#667eea"/>
+
+    <!-- Calendar rings -->
+    <rect x="45" y="10" width="12" height="50" rx="6" fill="#444"/>
+    <rect x="95" y="10" width="12" height="50" rx="6" fill="#444"/>
+    <rect x="145" y="10" width="12" height="50" rx="6" fill="#444"/>
+
+    <!-- Day number -->
+    <text x="100" y="165" font-family="Arial, sans-serif" font-size="70" font-weight="bold" fill="#333" text-anchor="middle">23</text>
+  </g>
+
+  <!-- App name -->
+  <text x="642" y="1480" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">Daily Planner</text>
+  <text x="642" y="1540" font-family="Arial, sans-serif" font-size="32" fill="white" fill-opacity="0.8" text-anchor="middle">Plan Your Notes Quickly</text>
+</svg>

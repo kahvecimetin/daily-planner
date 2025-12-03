@@ -8,38 +8,39 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Calendar, Pencil, Zap } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
-  emoji: string;
+  icon: 'calendar' | 'pencil' | 'zap';
   title: string;
   description: string;
-  bgColor: string;
+  bgColors: [string, string];
 }
 
 const slides: OnboardingSlide[] = [
   {
     id: '1',
-    emoji: '📅',
+    icon: 'calendar',
     title: 'Takvimini Kesfet',
     description: 'Yil, ay, hafta veya gun.\nIstedigin gorunumde gezin.',
-    bgColor: '#667eea',
+    bgColors: ['#667eea', '#764ba2'],
   },
   {
     id: '2',
-    emoji: '✨',
+    icon: 'pencil',
     title: 'Notlarini Yaz',
     description: 'Her gune ozel notlar ekle.\nRenklerle duzenle.',
-    bgColor: '#f093fb',
+    bgColors: ['#f093fb', '#f5576c'],
   },
   {
     id: '3',
-    emoji: '🚀',
+    icon: 'zap',
     title: 'Hazirsin!',
     description: 'Basit. Hizli. Senin icin.',
-    bgColor: '#4facfe',
+    bgColors: ['#4facfe', '#00f2fe'],
   },
 ];
 
@@ -49,11 +50,11 @@ interface OnboardingScreenProps {
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Floating particles
   const particle1Y = useRef(new Animated.Value(0)).current;
@@ -64,11 +65,11 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   const particle3X = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Floating emoji animation
+    // Floating icon animation
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, {
-          toValue: -20,
+          toValue: -15,
           duration: 2000,
           useNativeDriver: true,
         }),
@@ -91,6 +92,22 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         Animated.timing(rotateAnim, {
           toValue: 0,
           duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Pulse animation for icon container
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
           useNativeDriver: true,
         }),
       ])
@@ -164,11 +181,26 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
 
   const rotation = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['-5deg', '5deg'],
+    outputRange: ['-3deg', '3deg'],
   });
 
+  const renderIcon = () => {
+    const iconProps = { size: 64, color: '#fff', strokeWidth: 1.5 };
+    switch (currentSlide.icon) {
+      case 'calendar':
+        return <Calendar {...iconProps} />;
+      case 'pencil':
+        return <Pencil {...iconProps} />;
+      case 'zap':
+        return <Zap {...iconProps} />;
+    }
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: currentSlide.bgColor }]}>
+    <View style={[styles.container, { backgroundColor: currentSlide.bgColors[0] }]}>
+      {/* Gradient overlay */}
+      <View style={[styles.gradientOverlay, { backgroundColor: currentSlide.bgColors[1] }]} />
+
       {/* Floating particles */}
       <Animated.View
         style={[
@@ -206,6 +238,10 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         ]}
       />
 
+      {/* Decorative circles */}
+      <View style={styles.decorCircle1} />
+      <View style={styles.decorCircle2} />
+
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           {currentIndex < slides.length - 1 && (
@@ -218,18 +254,21 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         <View style={styles.content}>
           <Animated.View
             style={[
-              styles.emojiContainer,
+              styles.iconOuterContainer,
               {
                 opacity: fadeAnim,
                 transform: [
-                  { scale: scaleAnim },
+                  { scale: Animated.multiply(scaleAnim, pulseAnim) },
                   { translateY: floatAnim },
                   { rotate: rotation },
                 ],
               },
             ]}
           >
-            <Text style={styles.emoji}>{currentSlide.emoji}</Text>
+            <View style={styles.iconGlow} />
+            <View style={styles.iconContainer}>
+              {renderIcon()}
+            </View>
           </Animated.View>
 
           <Animated.View
@@ -249,7 +288,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         <View style={styles.footer}>
           <View style={styles.dotsContainer}>
             {slides.map((_, index) => (
-              <View
+              <Animated.View
                 key={index}
                 style={[
                   styles.dot,
@@ -278,6 +317,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.5,
+  },
   safeArea: {
     flex: 1,
   },
@@ -291,11 +338,13 @@ const styles = StyleSheet.create({
   skipButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
   },
   skipText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    fontWeight: '500',
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
@@ -303,25 +352,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 40,
   },
-  emojiContainer: {
-    marginBottom: 40,
+  iconOuterContainer: {
+    marginBottom: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  emoji: {
-    fontSize: 120,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 10 },
-    textShadowRadius: 20,
+  iconGlow: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  iconContainer: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
   },
   textContainer: {
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '800',
     color: '#fff',
     textAlign: 'center',
     marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowColor: 'rgba(0,0,0,0.15)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
@@ -342,25 +409,29 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: 'rgba(255,255,255,0.4)',
     marginHorizontal: 6,
   },
   activeDot: {
     backgroundColor: '#fff',
-    width: 28,
+    width: 32,
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
   },
   nextButton: {
     backgroundColor: '#fff',
     paddingVertical: 18,
-    borderRadius: 16,
+    borderRadius: 30,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
     elevation: 8,
   },
   nextButtonText: {
@@ -371,7 +442,7 @@ const styles = StyleSheet.create({
   particle: {
     position: 'absolute',
     borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   particle1: {
     width: 20,
@@ -388,19 +459,37 @@ const styles = StyleSheet.create({
   particle3: {
     width: 24,
     height: 24,
-    top: '60%',
-    left: '20%',
+    top: '55%',
+    left: '15%',
   },
   particle4: {
     width: 16,
     height: 16,
-    top: '70%',
-    right: '10%',
+    top: '65%',
+    right: '12%',
   },
   particle5: {
     width: 12,
     height: 12,
     top: '40%',
-    right: '25%',
+    right: '20%',
+  },
+  decorCircle1: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    top: -100,
+    right: -100,
+  },
+  decorCircle2: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    bottom: 100,
+    left: -80,
   },
 });

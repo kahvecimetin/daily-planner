@@ -47,3 +47,19 @@ export const isOnboardingCompleted = async (): Promise<boolean> => {
     return false;
   }
 };
+
+export const resetOnboarding = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(ONBOARDING_KEY);
+  } catch (e) {
+    console.error('Error resetting onboarding:', e);
+  }
+};
+
+export const clearAllData = async (): Promise<void> => {
+  try {
+    await AsyncStorage.clear();
+  } catch (e) {
+    console.error('Error clearing all data:', e);
+  }
+};
