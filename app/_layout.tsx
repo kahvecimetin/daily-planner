@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { isOnboardingCompleted, setOnboardingCompleted } from '@/utils/storage';
 import OnboardingScreen from '@/components/onboarding/OnboardingScreen';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -30,20 +31,24 @@ export default function RootLayout() {
 
   if (showOnboarding) {
     return (
-      <SafeAreaProvider>
-        <OnboardingScreen onComplete={handleOnboardingComplete} />
-        <StatusBar style="auto" />
-      </SafeAreaProvider>
+      <LanguageProvider>
+        <SafeAreaProvider>
+          <OnboardingScreen onComplete={handleOnboardingComplete} />
+          <StatusBar style="auto" />
+        </SafeAreaProvider>
+      </LanguageProvider>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </SafeAreaProvider>
+    <LanguageProvider>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </SafeAreaProvider>
+    </LanguageProvider>
   );
 }

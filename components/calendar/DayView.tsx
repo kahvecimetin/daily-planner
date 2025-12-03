@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { DAYS_FULL_TR, MONTHS_TR } from '@/types/calendar';
 import { Note } from '@/types/note';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface DayViewProps {
   date: Date;
@@ -11,19 +11,20 @@ interface DayViewProps {
 }
 
 export default function DayView({ date, notes, onAddNote, onNotePress }: DayViewProps) {
+  const { t, months, daysFull } = useTranslation();
   const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1;
   const isToday = date.toDateString() === new Date().toDateString();
 
   return (
     <View style={styles.container}>
       <View style={[styles.header, isToday && styles.todayHeader]}>
-        <Text style={styles.dayName}>{DAYS_FULL_TR[dayOfWeek]}</Text>
+        <Text style={styles.dayName}>{daysFull[dayOfWeek]}</Text>
         <View style={styles.dateRow}>
           <Text style={[styles.dateNumber, isToday && styles.todayText]}>
             {date.getDate()}
           </Text>
           <Text style={[styles.monthYear, isToday && styles.todaySubtext]}>
-            {MONTHS_TR[date.getMonth()]} {date.getFullYear()}
+            {months[date.getMonth()]} {date.getFullYear()}
           </Text>
         </View>
       </View>
@@ -32,8 +33,8 @@ export default function DayView({ date, notes, onAddNote, onNotePress }: DayView
         {notes.length === 0 ? (
           <TouchableOpacity style={styles.emptyState} onPress={onAddNote}>
             <Text style={styles.emptyIcon}>📝</Text>
-            <Text style={styles.emptyText}>Bu gun icin not yok</Text>
-            <Text style={styles.emptyHint}>Eklemek icin dokun</Text>
+            <Text style={styles.emptyText}>{t('dayView.noNotes')}</Text>
+            <Text style={styles.emptyHint}>{t('dayView.tapToAdd')}</Text>
           </TouchableOpacity>
         ) : (
           <>

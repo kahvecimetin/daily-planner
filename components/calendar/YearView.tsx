@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { MONTHS_TR, DAYS_TR } from '@/types/calendar';
 import { getMonthDays } from '@/utils/calendar';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface YearViewProps {
   year: number;
@@ -11,6 +11,8 @@ interface YearViewProps {
 }
 
 export default function YearView({ year, noteDates, onMonthPress, onDayPress }: YearViewProps) {
+  const { months, daysShort } = useTranslation();
+
   const renderMiniMonth = (month: number) => {
     const days = getMonthDays(year, month, noteDates);
 
@@ -21,9 +23,9 @@ export default function YearView({ year, noteDates, onMonthPress, onDayPress }: 
         onPress={() => onMonthPress(month)}
         activeOpacity={0.7}
       >
-        <Text style={styles.monthTitle}>{MONTHS_TR[month]}</Text>
+        <Text style={styles.monthTitle}>{months[month]}</Text>
         <View style={styles.daysHeader}>
-          {DAYS_TR.map((day, index) => (
+          {daysShort.map((day, index) => (
             <Text key={index} style={styles.dayHeaderText}>
               {day.charAt(0)}
             </Text>

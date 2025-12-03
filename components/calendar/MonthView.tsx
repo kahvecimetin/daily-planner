@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { DAYS_TR } from '@/types/calendar';
 import { getMonthDays } from '@/utils/calendar';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface MonthViewProps {
   year: number;
@@ -12,6 +12,7 @@ interface MonthViewProps {
 }
 
 export default function MonthView({ year, month, noteDates, onDayPress, onWeekPress }: MonthViewProps) {
+  const { daysShort } = useTranslation();
   const days = getMonthDays(year, month, noteDates);
 
   const getWeekNumber = (date: Date): number => {
@@ -31,7 +32,7 @@ export default function MonthView({ year, month, noteDates, onDayPress, onWeekPr
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.weekNumberHeader} />
-        {DAYS_TR.map((day, index) => (
+        {daysShort.map((day, index) => (
           <View key={index} style={styles.dayHeader}>
             <Text style={styles.dayHeaderText}>{day}</Text>
           </View>

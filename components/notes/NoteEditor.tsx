@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { X, Trash2, Check } from 'lucide-react-native';
 import { Note, NOTE_COLORS } from '@/types/note';
-import { MONTHS_TR, DAYS_FULL_TR } from '@/types/calendar';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface NoteEditorProps {
   visible: boolean;
@@ -30,6 +30,7 @@ export default function NoteEditor({
   onSave,
   onDelete,
 }: NoteEditorProps) {
+  const { t, months, daysFull } = useTranslation();
   const [content, setContent] = useState('');
   const [color, setColor] = useState(NOTE_COLORS[0]);
 
@@ -65,7 +66,7 @@ export default function NoteEditor({
   };
 
   const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1;
-  const dateStr = `${date.getDate()} ${MONTHS_TR[date.getMonth()]} ${date.getFullYear()}, ${DAYS_FULL_TR[dayOfWeek]}`;
+  const dateStr = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${daysFull[dayOfWeek]}`;
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -93,7 +94,7 @@ export default function NoteEditor({
 
           <TextInput
             style={styles.contentInput}
-            placeholder="Not yaz..."
+            placeholder={t('noteEditor.placeholder')}
             placeholderTextColor="#999"
             value={content}
             onChangeText={setContent}

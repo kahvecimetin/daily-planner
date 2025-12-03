@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { ViewType, MONTHS_TR } from '@/types/calendar';
+import { ViewType } from '@/types/calendar';
 import { getStartOfWeek, getEndOfWeek } from '@/utils/calendar';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface CalendarHeaderProps {
   currentDate: Date;
@@ -13,13 +14,6 @@ interface CalendarHeaderProps {
   onNext: () => void;
 }
 
-const views: { key: ViewType; label: string }[] = [
-  { key: 'year', label: 'Yil' },
-  { key: 'month', label: 'Ay' },
-  { key: 'week', label: 'Hafta' },
-  { key: 'day', label: 'Gun' },
-];
-
 export default function CalendarHeader({
   currentDate,
   viewType,
@@ -28,6 +22,15 @@ export default function CalendarHeader({
   onPrevious,
   onNext,
 }: CalendarHeaderProps) {
+  const { t, months } = useTranslation();
+
+  const views: { key: ViewType; label: string }[] = [
+    { key: 'year', label: t('views.year') },
+    { key: 'month', label: t('views.month') },
+    { key: 'week', label: t('views.week') },
+    { key: 'day', label: t('views.day') },
+  ];
+
   const today = new Date();
   const isToday = currentDate.toDateString() === today.toDateString();
   const isCurrentMonth = currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear();
@@ -44,17 +47,17 @@ export default function CalendarHeader({
       case 'year':
         return currentDate.getFullYear().toString();
       case 'month':
-        return `${MONTHS_TR[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        return `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
       case 'week': {
         const start = getStartOfWeek(currentDate);
         const end = getEndOfWeek(currentDate);
         if (start.getMonth() === end.getMonth()) {
-          return `${start.getDate()} - ${end.getDate()} ${MONTHS_TR[start.getMonth()]}`;
+          return `${start.getDate()} - ${end.getDate()} ${months[start.getMonth()]}`;
         }
-        return `${start.getDate()} ${MONTHS_TR[start.getMonth()]} - ${end.getDate()} ${MONTHS_TR[end.getMonth()]}`;
+        return `${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]}`;
       }
       case 'day':
-        return `${currentDate.getDate()} ${MONTHS_TR[currentDate.getMonth()]}`;
+        return `${currentDate.getDate()} ${months[currentDate.getMonth()]}`;
       default:
         return '';
     }
@@ -95,7 +98,7 @@ export default function CalendarHeader({
           <Text style={styles.title}>{getTitle()}</Text>
           {showTodayButton && (
             <TouchableOpacity onPress={onToday}>
-              <Text style={styles.todayText}>Bugune don</Text>
+              <Text style={styles.todayText}>{t('calendar.goToToday')}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -9,37 +9,38 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Pencil, Zap } from 'lucide-react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
   icon: 'calendar' | 'pencil' | 'zap';
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   bgColors: [string, string];
 }
 
-const slides: OnboardingSlide[] = [
+const slidesData: OnboardingSlide[] = [
   {
     id: '1',
     icon: 'calendar',
-    title: 'Takvimini Kesfet',
-    description: 'Yil, ay, hafta veya gun.\nIstedigin gorunumde gezin.',
+    titleKey: 'onboarding.slides.calendar.title',
+    descriptionKey: 'onboarding.slides.calendar.description',
     bgColors: ['#667eea', '#764ba2'],
   },
   {
     id: '2',
     icon: 'pencil',
-    title: 'Notlarini Yaz',
-    description: 'Her gune ozel notlar ekle.\nRenklerle duzenle.',
+    titleKey: 'onboarding.slides.notes.title',
+    descriptionKey: 'onboarding.slides.notes.description',
     bgColors: ['#f093fb', '#f5576c'],
   },
   {
     id: '3',
     icon: 'zap',
-    title: 'Hazirsin!',
-    description: 'Basit. Hizli. Senin icin.',
+    titleKey: 'onboarding.slides.ready.title',
+    descriptionKey: 'onboarding.slides.ready.description',
     bgColors: ['#4facfe', '#00f2fe'],
   },
 ];
@@ -49,6 +50,7 @@ interface OnboardingScreenProps {
 }
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -166,7 +168,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   };
 
   const handleNext = () => {
-    if (currentIndex < slides.length - 1) {
+    if (currentIndex < slidesData.length - 1) {
       animateTransition(currentIndex + 1);
     } else {
       onComplete();
@@ -177,7 +179,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
     onComplete();
   };
 
-  const currentSlide = slides[currentIndex];
+  const currentSlide = slidesData[currentIndex];
 
   const rotation = rotateAnim.interpolate({
     inputRange: [0, 1],
@@ -244,9 +246,9 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          {currentIndex < slides.length - 1 && (
+          {currentIndex < slidesData.length - 1 && (
             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-              <Text style={styles.skipText}>Atla</Text>
+              <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -280,14 +282,14 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
               },
             ]}
           >
-            <Text style={styles.title}>{currentSlide.title}</Text>
-            <Text style={styles.description}>{currentSlide.description}</Text>
+            <Text style={styles.title}>{t(currentSlide.titleKey)}</Text>
+            <Text style={styles.description}>{t(currentSlide.descriptionKey)}</Text>
           </Animated.View>
         </View>
 
         <View style={styles.footer}>
           <View style={styles.dotsContainer}>
-            {slides.map((_, index) => (
+            {slidesData.map((_, index) => (
               <Animated.View
                 key={index}
                 style={[
@@ -304,7 +306,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
             activeOpacity={0.8}
           >
             <Text style={styles.nextButtonText}>
-              {currentIndex === slides.length - 1 ? 'Basla' : 'Devam'}
+              {currentIndex === slidesData.length - 1 ? t('onboarding.start') : t('onboarding.next')}
             </Text>
           </TouchableOpacity>
         </View>

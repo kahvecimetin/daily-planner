@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { DAYS_FULL_TR } from '@/types/calendar';
 import { getWeekDays } from '@/utils/calendar';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface WeekViewProps {
   currentDate: Date;
@@ -10,6 +10,7 @@ interface WeekViewProps {
 }
 
 export default function WeekView({ currentDate, noteDates, onDayPress }: WeekViewProps) {
+  const { t, daysFull } = useTranslation();
   const days = getWeekDays(currentDate, noteDates);
 
   return (
@@ -23,7 +24,7 @@ export default function WeekView({ currentDate, noteDates, onDayPress }: WeekVie
         >
           <View style={styles.dayHeader}>
             <Text style={[styles.dayName, day.isToday && styles.todayText]}>
-              {DAYS_FULL_TR[index]}
+              {daysFull[index]}
             </Text>
             <View style={[styles.dateCircle, day.isToday && styles.todayCircle]}>
               <Text style={[styles.dateNumber, day.isToday && styles.todayDateText]}>
@@ -34,7 +35,7 @@ export default function WeekView({ currentDate, noteDates, onDayPress }: WeekVie
           {day.hasNotes && (
             <View style={styles.noteIndicator}>
               <View style={styles.noteDot} />
-              <Text style={styles.noteText}>Not var</Text>
+              <Text style={styles.noteText}>{t('weekView.hasNotes')}</Text>
             </View>
           )}
         </TouchableOpacity>
