@@ -45,6 +45,7 @@ export default {
     skip: 'Atla',
     next: 'Devam',
     start: 'Başla',
+    accept: 'Kabul Et ve Başla',
     slides: {
       calendar: {
         title: 'Takvimini Keşfet',
@@ -58,7 +59,26 @@ export default {
         title: 'Hazırsın!',
         description: 'Basit. Hızlı. Senin için.',
       },
+      privacy: {
+        title: 'Gizlilik ve Kullanım',
+        description: 'Devam ederek Gizlilik Politikası ve Kullanım Koşullarını kabul etmiş olursunuz.',
+      },
     },
+    privacyPolicy: 'Gizlilik Politikası',
+    termsOfService: 'Kullanım Koşulları',
+  },
+
+  // Settings
+  settings: {
+    title: 'Ayarlar',
+    appVersion: 'Uygulama Sürümü',
+    legal: 'Yasal',
+    privacyPolicy: 'Gizlilik Politikası',
+    termsOfService: 'Kullanım Koşulları',
+    about: 'Hakkında',
+    language: 'Dil',
+    turkish: 'Türkçe',
+    english: 'İngilizce',
   },
 
   // Not Found

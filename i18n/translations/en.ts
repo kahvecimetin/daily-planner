@@ -45,6 +45,7 @@ export default {
     skip: 'Skip',
     next: 'Next',
     start: 'Start',
+    accept: 'Accept and Start',
     slides: {
       calendar: {
         title: 'Explore Your Calendar',
@@ -58,7 +59,26 @@ export default {
         title: "You're Ready!",
         description: 'Simple. Fast. For you.',
       },
+      privacy: {
+        title: 'Privacy and Terms',
+        description: 'By continuing, you agree to our Privacy Policy and Terms of Service.',
+      },
     },
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+  },
+
+  // Settings
+  settings: {
+    title: 'Settings',
+    appVersion: 'App Version',
+    legal: 'Legal',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    about: 'About',
+    language: 'Language',
+    turkish: 'Turkish',
+    english: 'English',
   },
 
   // Not Found

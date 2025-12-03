@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { ViewType } from '@/types/calendar';
 import { getStartOfWeek, getEndOfWeek } from '@/utils/calendar';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -12,6 +12,7 @@ interface CalendarHeaderProps {
   onToday: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  onSettingsPress: () => void;
 }
 
 export default function CalendarHeader({
@@ -21,6 +22,7 @@ export default function CalendarHeader({
   onToday,
   onPrevious,
   onNext,
+  onSettingsPress,
 }: CalendarHeaderProps) {
   const { t, months } = useTranslation();
 
@@ -66,6 +68,9 @@ export default function CalendarHeader({
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
+        <TouchableOpacity onPress={onSettingsPress} style={styles.settingsButton}>
+          <Settings size={22} color="#666" />
+        </TouchableOpacity>
         <View style={styles.viewSwitcher}>
           {views.map((view) => (
             <TouchableOpacity
@@ -87,6 +92,7 @@ export default function CalendarHeader({
             </TouchableOpacity>
           ))}
         </View>
+        <View style={styles.settingsPlaceholder} />
       </View>
 
       <View style={styles.titleRow}>
@@ -122,8 +128,15 @@ const styles = StyleSheet.create({
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
+  },
+  settingsButton: {
+    padding: 8,
+  },
+  settingsPlaceholder: {
+    width: 38,
   },
   viewSwitcher: {
     flexDirection: 'row',

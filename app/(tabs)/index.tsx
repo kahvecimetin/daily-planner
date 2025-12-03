@@ -12,6 +12,7 @@ import MonthView from '@/components/calendar/MonthView';
 import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
 import NoteEditor from '@/components/notes/NoteEditor';
+import SettingsModal from '@/components/settings/SettingsModal';
 
 export default function CalendarScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -20,6 +21,7 @@ export default function CalendarScreen() {
   const [editorVisible, setEditorVisible] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [settingsVisible, setSettingsVisible] = useState(false);
 
   // Load notes on mount
   useEffect(() => {
@@ -145,6 +147,14 @@ export default function CalendarScreen() {
     setSelectedNote(null);
   }, []);
 
+  const handleOpenSettings = useCallback(() => {
+    setSettingsVisible(true);
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setSettingsVisible(false);
+  }, []);
+
   const renderView = () => {
     switch (viewType) {
       case 'year':
@@ -195,6 +205,7 @@ export default function CalendarScreen() {
         onToday={handleToday}
         onPrevious={handlePrevious}
         onNext={handleNext}
+        onSettingsPress={handleOpenSettings}
       />
       <View style={styles.content}>
         {renderView()}
@@ -213,6 +224,11 @@ export default function CalendarScreen() {
         onClose={handleCloseEditor}
         onSave={handleSaveNote}
         onDelete={handleDeleteNote}
+      />
+
+      <SettingsModal
+        visible={settingsVisible}
+        onClose={handleCloseSettings}
       />
     </SafeAreaView>
   );

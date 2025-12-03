@@ -6,19 +6,25 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Calendar, Pencil, Zap } from 'lucide-react-native';
+import { Calendar, Pencil, Zap, Shield } from 'lucide-react-native';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const { width, height } = Dimensions.get('window');
 
+// Privacy Policy ve Terms of Service URL'leri
+const PRIVACY_POLICY_URL = 'https://example.com/privacy';
+const TERMS_OF_SERVICE_URL = 'https://example.com/terms';
+
 interface OnboardingSlide {
   id: string;
-  icon: 'calendar' | 'pencil' | 'zap';
+  icon: 'calendar' | 'pencil' | 'zap' | 'shield';
   titleKey: string;
   descriptionKey: string;
   bgColors: [string, string];
+  isPrivacySlide?: boolean;
 }
 
 const slidesData: OnboardingSlide[] = [
@@ -42,6 +48,14 @@ const slidesData: OnboardingSlide[] = [
     titleKey: 'onboarding.slides.ready.title',
     descriptionKey: 'onboarding.slides.ready.description',
     bgColors: ['#4facfe', '#00f2fe'],
+  },
+  {
+    id: '4',
+    icon: 'shield',
+    titleKey: 'onboarding.slides.privacy.title',
+    descriptionKey: 'onboarding.slides.privacy.description',
+    bgColors: ['#11998e', '#38ef7d'],
+    isPrivacySlide: true,
   },
 ];
 
@@ -186,6 +200,10 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
     outputRange: ['-3deg', '3deg'],
   });
 
+  const openURL = (url: string) => {
+    Linking.openURL(url);
+  };
+
   const renderIcon = () => {
     const iconProps = { size: 64, color: '#fff', strokeWidth: 1.5 };
     switch (currentSlide.icon) {
@@ -195,8 +213,13 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         return <Pencil {...iconProps} />;
       case 'zap':
         return <Zap {...iconProps} />;
+      case 'shield':
+        return <Shield {...iconProps} />;
     }
   };
+
+  const isLastSlide = currentIndex === slidesData.length - 1;
+  const isPrivacySlide = currentSlide.isPrivacySlide;
 
   return (
     <View style={[styles.container, { backgroundColor: currentSlide.bgColors[0] }]}>
@@ -284,6 +307,18 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
           >
             <Text style={styles.title}>{t(currentSlide.titleKey)}</Text>
             <Text style={styles.description}>{t(currentSlide.descriptionKey)}</Text>
+
+            {isPrivacySlide && (
+              <View style={styles.linksContainer}>
+                <TouchableOpacity onPress={() => openURL(PRIVACY_POLICY_URL)}>
+                  <Text style={styles.linkText}>{t('onboarding.privacyPolicy')}</Text>
+                </TouchableOpacity>
+                <Text style={styles.linkSeparator}>•</Text>
+                <TouchableOpacity onPress={() => openURL(TERMS_OF_SERVICE_URL)}>
+                  <Text style={styles.linkText}>{t('onboarding.termsOfService')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </Animated.View>
         </View>
 
@@ -306,7 +341,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
             activeOpacity={0.8}
           >
             <Text style={styles.nextButtonText}>
-              {currentIndex === slidesData.length - 1 ? t('onboarding.start') : t('onboarding.next')}
+              {isLastSlide ? t('onboarding.accept') : t('onboarding.next')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -399,6 +434,22 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     lineHeight: 28,
+  },
+  linksContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  linkText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  linkSeparator: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.6)',
+    marginHorizontal: 12,
   },
   footer: {
     paddingHorizontal: 24,
