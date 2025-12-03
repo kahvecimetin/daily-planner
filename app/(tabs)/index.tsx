@@ -1,33 +1,220 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Sparkles } from 'lucide-react-native';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Plus } from 'lucide-react-native';
+import { ViewType } from '@/types/calendar';
+import { Note } from '@/types/note';
+import { addDays, addMonths, addYears, formatDateKey } from '@/utils/calendar';
+import { saveNotes, loadNotes } from '@/utils/storage';
+import CalendarHeader from '@/components/calendar/CalendarHeader';
+import YearView from '@/components/calendar/YearView';
+import MonthView from '@/components/calendar/MonthView';
+import WeekView from '@/components/calendar/WeekView';
+import DayView from '@/components/calendar/DayView';
+import NoteEditor from '@/components/notes/NoteEditor';
 
-export default function HomeScreen() {
+export default function CalendarScreen() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewType, setViewType] = useState<ViewType>('day');
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [editorVisible, setEditorVisible] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load notes on mount
+  useEffect(() => {
+    const load = async () => {
+      const savedNotes = await loadNotes();
+      setNotes(savedNotes);
+      setIsLoaded(true);
+    };
+    load();
+  }, []);
+
+  // Save notes when they change
+  useEffect(() => {
+    if (isLoaded) {
+      saveNotes(notes);
+    }
+  }, [notes, isLoaded]);
+
+  const noteDates = useMemo(() => {
+    return new Set(notes.map((n) => n.date));
+  }, [notes]);
+
+  const currentDayNotes = useMemo(() => {
+    const dateKey = formatDateKey(currentDate);
+    return notes.filter((n) => n.date === dateKey);
+  }, [notes, currentDate]);
+
+  const handlePrevious = useCallback(() => {
+    switch (viewType) {
+      case 'year':
+        setCurrentDate((prev) => addYears(prev, -1));
+        break;
+      case 'month':
+        setCurrentDate((prev) => addMonths(prev, -1));
+        break;
+      case 'week':
+        setCurrentDate((prev) => addDays(prev, -7));
+        break;
+      case 'day':
+        setCurrentDate((prev) => addDays(prev, -1));
+        break;
+    }
+  }, [viewType]);
+
+  const handleNext = useCallback(() => {
+    switch (viewType) {
+      case 'year':
+        setCurrentDate((prev) => addYears(prev, 1));
+        break;
+      case 'month':
+        setCurrentDate((prev) => addMonths(prev, 1));
+        break;
+      case 'week':
+        setCurrentDate((prev) => addDays(prev, 7));
+        break;
+      case 'day':
+        setCurrentDate((prev) => addDays(prev, 1));
+        break;
+    }
+  }, [viewType]);
+
+  const handleToday = useCallback(() => {
+    setCurrentDate(new Date());
+  }, []);
+
+  const handleDayPress = useCallback((date: Date) => {
+    setCurrentDate(date);
+    setViewType('day');
+  }, []);
+
+  const handleWeekPress = useCallback((date: Date) => {
+    setCurrentDate(date);
+    setViewType('week');
+  }, []);
+
+  const handleMonthPress = useCallback((month: number) => {
+    setCurrentDate(new Date(currentDate.getFullYear(), month, 1));
+    setViewType('month');
+  }, [currentDate]);
+
+  const handleAddNote = useCallback(() => {
+    setSelectedNote(null);
+    setEditorVisible(true);
+  }, []);
+
+  const handleNotePress = useCallback((note: Note) => {
+    setSelectedNote(note);
+    setEditorVisible(true);
+  }, []);
+
+  const handleSaveNote = useCallback(
+    (noteData: { id?: string; content: string; color: string }) => {
+      const dateKey = formatDateKey(currentDate);
+
+      if (noteData.id) {
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === noteData.id
+              ? { ...n, content: noteData.content, color: noteData.color }
+              : n
+          )
+        );
+      } else {
+        const newNote: Note = {
+          id: Date.now().toString(),
+          date: dateKey,
+          content: noteData.content,
+          color: noteData.color,
+          createdAt: new Date(),
+        };
+        setNotes((prev) => [...prev, newNote]);
+      }
+    },
+    [currentDate]
+  );
+
+  const handleDeleteNote = useCallback((noteId: string) => {
+    setNotes((prev) => prev.filter((n) => n.id !== noteId));
+  }, []);
+
+  const handleCloseEditor = useCallback(() => {
+    setEditorVisible(false);
+    setSelectedNote(null);
+  }, []);
+
+  const renderView = () => {
+    switch (viewType) {
+      case 'year':
+        return (
+          <YearView
+            year={currentDate.getFullYear()}
+            noteDates={noteDates}
+            onMonthPress={handleMonthPress}
+            onDayPress={handleDayPress}
+          />
+        );
+      case 'month':
+        return (
+          <MonthView
+            year={currentDate.getFullYear()}
+            month={currentDate.getMonth()}
+            noteDates={noteDates}
+            onDayPress={handleDayPress}
+            onWeekPress={handleWeekPress}
+          />
+        );
+      case 'week':
+        return (
+          <WeekView
+            currentDate={currentDate}
+            noteDates={noteDates}
+            onDayPress={handleDayPress}
+          />
+        );
+      case 'day':
+        return (
+          <DayView
+            date={currentDate}
+            notes={currentDayNotes}
+            onAddNote={handleAddNote}
+            onNotePress={handleNotePress}
+          />
+        );
+    }
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <CalendarHeader
+        currentDate={currentDate}
+        viewType={viewType}
+        onViewChange={setViewType}
+        onToday={handleToday}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+      />
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Sparkles size={48} color="#007AFF" />
-          <Text style={styles.title}>Welcome</Text>
-          <Text style={styles.subtitle}>React Native App</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Getting Started</Text>
-          <Text style={styles.cardText}>
-            This is a minimal React Native app built with Expo Router and tab navigation.
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Features</Text>
-          <Text style={styles.cardText}>
-            • Tab-based navigation{'\n'}
-            • Clean, modern design{'\n'}
-            • Ready for customization
-          </Text>
-        </View>
+        {renderView()}
       </View>
-    </ScrollView>
+
+      {viewType === 'day' && (
+        <TouchableOpacity style={styles.fab} onPress={handleAddNote}>
+          <Plus size={28} color="#fff" />
+        </TouchableOpacity>
+      )}
+
+      <NoteEditor
+        visible={editorVisible}
+        note={selectedNote}
+        date={currentDate}
+        onClose={handleCloseEditor}
+        onSave={handleSaveNote}
+        onDelete={handleDeleteNote}
+      />
+    </SafeAreaView>
   );
 }
 
@@ -38,43 +225,21 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
   },
-  header: {
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginTop: 16,
-    color: '#1a1a1a',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    marginTop: 8,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#1a1a1a',
-  },
-  cardText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
