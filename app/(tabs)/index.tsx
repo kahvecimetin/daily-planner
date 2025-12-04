@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
 import { ViewType } from '@/types/calendar';
@@ -13,6 +13,8 @@ import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
 import NoteEditor from '@/components/notes/NoteEditor';
 import SettingsModal from '@/components/settings/SettingsModal';
+import BannerAd from '@/components/ads/BannerAd';
+import { adService } from '@/services/AdService';
 
 export default function CalendarScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -23,7 +25,7 @@ export default function CalendarScreen() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
 
-  // Load notes on mount
+  // Load notes and initialize ads on mount
   useEffect(() => {
     const load = async () => {
       const savedNotes = await loadNotes();
@@ -31,6 +33,11 @@ export default function CalendarScreen() {
       setIsLoaded(true);
     };
     load();
+
+    // AdMob'u başlat
+    if (Platform.OS !== 'web') {
+      adService.initialize();
+    }
   }, []);
 
   // Save notes when they change
@@ -113,7 +120,7 @@ export default function CalendarScreen() {
   }, []);
 
   const handleSaveNote = useCallback(
-    (noteData: { id?: string; content: string; color: string }) => {
+    async (noteData: { id?: string; content: string; color: string }) => {
       const dateKey = formatDateKey(currentDate);
 
       if (noteData.id) {
@@ -133,6 +140,11 @@ export default function CalendarScreen() {
           createdAt: new Date(),
         };
         setNotes((prev) => [...prev, newNote]);
+      }
+
+      // Not kaydedildiğinde interstitial reklam sayacını artır
+      if (Platform.OS !== 'web') {
+        await adService.trackAction();
       }
     },
     [currentDate]
@@ -211,6 +223,9 @@ export default function CalendarScreen() {
         {renderView()}
       </View>
 
+      {/* Banner Reklam */}
+      {Platform.OS !== 'web' && <BannerAd />}
+
       {viewType === 'day' && (
         <TouchableOpacity style={styles.fab} onPress={handleAddNote}>
           <Plus size={28} color="#fff" />
@@ -245,7 +260,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 24,
+    bottom: 80, // Banner reklam için yukarı kaydırıldı
     width: 56,
     height: 56,
     borderRadius: 28,

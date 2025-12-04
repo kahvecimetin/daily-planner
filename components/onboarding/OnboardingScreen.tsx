@@ -15,8 +15,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const { width, height } = Dimensions.get('window');
 
 // Privacy Policy ve Terms of Service URL'leri
-const PRIVACY_POLICY_URL = 'https://example.com/privacy';
-const TERMS_OF_SERVICE_URL = 'https://example.com/terms';
+const PRIVACY_POLICY_URL = 'https://qr-code-privacy.s3.us-east-1.amazonaws.com/privacy.pdf';
+const TERMS_OF_SERVICE_URL = 'https://qr-code-privacy.s3.us-east-1.amazonaws.com/terms.pdf';
 
 interface OnboardingSlide {
   id: string;
