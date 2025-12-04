@@ -38,7 +38,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "iosAppId": "${EXPO_PUBLIC_PLANNER_ADMOB_APP_IOS_ID}"
+          "iosAppId": "${EXPO_PUBLIC_PLANNER_ADMOB_APP_IOS_ID}",
+          "androidAppId": "${EXPO_PUBLIC_PLANNER_ADMOB_APP_IOS_ID}"
         }
       ]
     ],

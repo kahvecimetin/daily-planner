@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { getWeekDays } from '@/utils/calendar';
 import { useTranslation } from '@/contexts/LanguageContext';
 
@@ -14,7 +14,7 @@ export default function WeekView({ currentDate, noteDates, onDayPress }: WeekVie
   const days = getWeekDays(currentDate, noteDates);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
       {days.map((day, index) => (
         <TouchableOpacity
           key={index}
@@ -40,14 +40,17 @@ export default function WeekView({ currentDate, noteDates, onDayPress }: WeekVie
           )}
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 8,
+    paddingBottom: 20,
   },
   dayCard: {
     backgroundColor: '#fff',
